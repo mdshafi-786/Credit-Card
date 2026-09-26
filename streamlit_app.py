@@ -276,10 +276,35 @@ st.markdown("""
         padding: 8px 20px;
     }
 
-    /* Hide default Streamlit elements for cleaner look */
+    /* Hide default Streamlit elements for cleaner look, but keep sidebar arrow button visible */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    header {
+        background-color: transparent !important;
+    }
+    
+    /* Ensure the sidebar toggle arrow button is always clearly visible and styled */
+    [data-testid="collapsedControl"] {
+        visibility: visible !important;
+        display: flex !important;
+        color: #a5b4fc !important;
+        background: rgba(15, 23, 42, 0.95) !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        border-radius: 8px !important;
+        padding: 4px 8px !important;
+        margin: 8px !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+        z-index: 1000 !important;
+    }
+    [data-testid="collapsedControl"]:hover {
+        background: rgba(99, 102, 241, 0.3) !important;
+        border-color: #818cf8 !important;
+        transform: scale(1.05) !important;
+    }
+    [data-testid="stSidebarCollapseButton"] {
+        color: #a5b4fc !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -976,6 +1001,17 @@ def render_risk_gauge(score, fraud_prob, fraud_status, is_suspicious):
     return fig
 
 
+PAGES = [
+    "🏠 Dashboard",
+    "🔍 Transaction Check",
+    "📦 Batch Upload",
+    "📋 Transaction Explorer",
+    "🧠 Model Insights"
+]
+
+if "current_page" not in st.session_state:
+    st.session_state["current_page"] = PAGES[0]
+
 # ─────────────────────────────────────────────────────────────
 # Sidebar Navigation
 # ─────────────────────────────────────────────────────────────
@@ -995,10 +1031,19 @@ with st.sidebar:
 
     st.markdown("---")
 
-    page = st.radio(
+    sidebar_current = st.session_state.get("current_page", PAGES[0])
+    if sidebar_current not in PAGES:
+        sidebar_current = PAGES[0]
+
+    def on_sidebar_change():
+        st.session_state["current_page"] = st.session_state["sidebar_radio"]
+
+    st.radio(
         "Navigation",
-        ["🏠 Dashboard", "🔍 Transaction Check", "📦 Batch Upload",
-         "📋 Transaction Explorer", "🧠 Model Insights"],
+        PAGES,
+        index=PAGES.index(sidebar_current),
+        key="sidebar_radio",
+        on_change=on_sidebar_change,
         label_visibility="collapsed"
     )
 
@@ -1024,6 +1069,49 @@ with st.sidebar:
         Built with Streamlit • FraudShield AI v2.0
     </div>
     """, unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────────────────────
+# Top App Navigation Bar with Quick Arrow Switch Buttons
+# ─────────────────────────────────────────────────────────────
+current_page = st.session_state.get("current_page", PAGES[0])
+if current_page not in PAGES:
+    current_page = PAGES[0]
+
+curr_idx = PAGES.index(current_page)
+prev_idx = (curr_idx - 1) % len(PAGES)
+next_idx = (curr_idx + 1) % len(PAGES)
+
+top_c1, top_c2, top_c3 = st.columns([2.5, 7, 2.5])
+with top_c1:
+    if st.button(f"⬅️ {PAGES[prev_idx]}", key="top_prev_btn", use_container_width=True, help=f"Switch to {PAGES[prev_idx]}"):
+        st.session_state["current_page"] = PAGES[prev_idx]
+        st.session_state["sidebar_radio"] = PAGES[prev_idx]
+        st.rerun()
+
+with top_c2:
+    def on_segmented_change():
+        if st.session_state.get("top_segmented_nav"):
+            st.session_state["current_page"] = st.session_state["top_segmented_nav"]
+            st.session_state["sidebar_radio"] = st.session_state["top_segmented_nav"]
+
+    st.segmented_control(
+        "Page Navigation",
+        PAGES,
+        default=current_page,
+        key="top_segmented_nav",
+        on_change=on_segmented_change,
+        label_visibility="collapsed"
+    )
+
+with top_c3:
+    if st.button(f"{PAGES[next_idx]} ➡️", key="top_next_btn", use_container_width=True, help=f"Switch to {PAGES[next_idx]}"):
+        st.session_state["current_page"] = PAGES[next_idx]
+        st.session_state["sidebar_radio"] = PAGES[next_idx]
+        st.rerun()
+
+st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
+page = st.session_state["current_page"]
 
 
 # ─────────────────────────────────────────────────────────────
@@ -2127,6 +2215,30 @@ elif page == "🧠 Model Insights":
             st.warning("No EDA outputs found. Run `train_pipeline.py` first.")
     else:
         st.error(f"ML Engine failed to load: {engine.get('error', 'Unknown error')}")
+
+
+# ─────────────────────────────────────────────────────────────
+# Bottom Arrow Navigation (Switch Between Options)
+# ─────────────────────────────────────────────────────────────
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("---")
+bot_c1, bot_c2, bot_c3 = st.columns([3, 4, 3])
+with bot_c1:
+    if st.button(f"⬅️ Previous: {PAGES[prev_idx]}", key="bot_arrow_prev", use_container_width=True):
+        st.session_state["current_page"] = PAGES[prev_idx]
+        st.session_state["sidebar_radio"] = PAGES[prev_idx]
+        st.rerun()
+with bot_c2:
+    st.markdown(f"""
+    <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding-top: 8px;">
+        Viewing Option <b>{curr_idx + 1} of {len(PAGES)}</b>: <span style="color: #a5b4fc; font-weight: 600;">{current_page}</span>
+    </div>
+    """, unsafe_allow_html=True)
+with bot_c3:
+    if st.button(f"Next: {PAGES[next_idx]} ➡️", key="bot_arrow_next", use_container_width=True, type="primary"):
+        st.session_state["current_page"] = PAGES[next_idx]
+        st.session_state["sidebar_radio"] = PAGES[next_idx]
+        st.rerun()
 
 
 # ─────────────────────────────────────────────────────────────
