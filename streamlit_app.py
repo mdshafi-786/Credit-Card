@@ -472,6 +472,238 @@ def predict_one(engine, txn_dict):
 
 
 # ─────────────────────────────────────────────────────────────
+# Feature Catalog & Configuration (All 18 Model Features)
+# ─────────────────────────────────────────────────────────────
+FEATURE_CONFIG = {
+    "merchant_category": {
+        "col": "merchant_category",
+        "label": "🏪 Merchant Category",
+        "type": "cat",
+        "desc": "Category of merchant terminal"
+    },
+    "transaction_location": {
+        "col": "transaction_location",
+        "label": "📍 Transaction City / Location",
+        "type": "cat",
+        "desc": "City where card was swiped / charged"
+    },
+    "customer_home_location": {
+        "col": "customer_home_location",
+        "label": "🏠 Customer Home City",
+        "type": "cat",
+        "desc": "Cardholder registered home residence"
+    },
+    "device_type": {
+        "col": "device_type",
+        "label": "📱 Device Type",
+        "type": "cat",
+        "desc": "Device used (Mobile, Laptop, Tablet, POS)"
+    },
+    "payment_method": {
+        "col": "payment_method",
+        "label": "💳 Payment Method",
+        "type": "cat",
+        "desc": "Payment mechanism (Online, Contactless, Chip & PIN, Mobile Wallet)"
+    },
+    "customer_risk_profile": {
+        "col": "customer_risk_profile",
+        "label": "⚠️ Customer Risk Profile",
+        "type": "cat",
+        "desc": "Pre-assigned historical risk tier (Low, Medium, High)"
+    },
+    "international_transaction": {
+        "col": "international_transaction",
+        "label": "🌍 International Transaction",
+        "type": "cat",
+        "desc": "Cross-border payment flag"
+    },
+    "location_mismatch": {
+        "col": "location_mismatch",
+        "label": "🗺️ Location Mismatch",
+        "type": "cat",
+        "desc": "Home city vs Transaction city mismatch"
+    },
+    "transaction_hour": {
+        "col": "transaction_hour",
+        "label": "⏰ Transaction Hour (0-23)",
+        "type": "cat",
+        "desc": "Time of day (0 to 23)"
+    },
+    "transaction_amount": {
+        "col": "transaction_amount",
+        "label": "💰 Transaction Amount (₹)",
+        "type": "num",
+        "desc": "Monetary value of transaction in INR",
+        "cases": [
+            "WHEN transaction_amount < 2500 THEN '< ₹2,500'",
+            "WHEN transaction_amount < 7500 THEN '₹2,500 - 7,500'",
+            "WHEN transaction_amount < 15000 THEN '₹7,500 - 15,000'",
+            "WHEN transaction_amount < 30000 THEN '₹15,000 - 30,000'",
+            "ELSE '> ₹30,000'"
+        ]
+    },
+    "customer_age": {
+        "col": "customer_age",
+        "label": "👤 Customer Age",
+        "type": "num",
+        "desc": "Age of the customer",
+        "cases": [
+            "WHEN customer_age < 26 THEN '18 - 25 yrs'",
+            "WHEN customer_age < 36 THEN '26 - 35 yrs'",
+            "WHEN customer_age < 51 THEN '36 - 50 yrs'",
+            "WHEN customer_age < 66 THEN '51 - 65 yrs'",
+            "ELSE '65+ yrs'"
+        ]
+    },
+    "customer_income_annual": {
+        "col": "customer_income_annual",
+        "label": "💼 Annual Income (₹)",
+        "type": "num",
+        "desc": "Annual income reported by customer",
+        "cases": [
+            "WHEN customer_income_annual < 300000 THEN '< ₹3 Lakh'",
+            "WHEN customer_income_annual < 600000 THEN '₹3L - 6L'",
+            "WHEN customer_income_annual < 1000000 THEN '₹6L - 10L'",
+            "WHEN customer_income_annual < 1500000 THEN '₹10L - 15L'",
+            "ELSE '> ₹15 Lakh'"
+        ]
+    },
+    "distance_from_home_km": {
+        "col": "distance_from_home_km",
+        "label": "📏 Distance From Home (km)",
+        "type": "num",
+        "desc": "Calculated distance between home and terminal",
+        "cases": [
+            "WHEN distance_from_home_km = 0 THEN '0 km (Home City)'",
+            "WHEN distance_from_home_km < 100 THEN '1 - 100 km'",
+            "WHEN distance_from_home_km < 500 THEN '100 - 500 km'",
+            "WHEN distance_from_home_km < 1000 THEN '500 - 1,000 km'",
+            "ELSE '> 1,000 km'"
+        ]
+    },
+    "customer_avg_transaction_amount": {
+        "col": "customer_avg_transaction_amount",
+        "label": "💵 Customer Avg Ticket Size (₹)",
+        "type": "num",
+        "desc": "Baseline average spending per transaction",
+        "cases": [
+            "WHEN customer_avg_transaction_amount < 2500 THEN '< ₹2,500'",
+            "WHEN customer_avg_transaction_amount < 5000 THEN '₹2,500 - 5,000'",
+            "WHEN customer_avg_transaction_amount < 10000 THEN '₹5,000 - 10,000'",
+            "ELSE '> ₹10,000'"
+        ]
+    },
+    "transactions_last_24h": {
+        "col": "transactions_last_24h",
+        "label": "⚡ Velocity: Transactions Last 24h",
+        "type": "cat",
+        "desc": "Number of card uses in past 24 hours"
+    },
+    "failed_attempts_last_24h": {
+        "col": "failed_attempts_last_24h",
+        "label": "🔐 Security: Failed Attempts Last 24h",
+        "type": "cat",
+        "desc": "Declined or incorrect PIN/OTP entries"
+    },
+    "customer_tenure_years": {
+        "col": "customer_tenure_years",
+        "label": "⏳ Customer Relationship Tenure",
+        "type": "num",
+        "desc": "Years as an active bank customer",
+        "cases": [
+            "WHEN customer_tenure_years < 1 THEN '< 1 year'",
+            "WHEN customer_tenure_years < 3 THEN '1 - 3 years'",
+            "WHEN customer_tenure_years < 5 THEN '3 - 5 years'",
+            "ELSE '5+ years'"
+        ]
+    },
+    "transactions_last_30_days": {
+        "col": "transactions_last_30_days",
+        "label": "📊 Monthly Frequency (Last 30 Days)",
+        "type": "num",
+        "desc": "Total count of transactions in past month",
+        "cases": [
+            "WHEN transactions_last_30_days < 10 THEN '0 - 9'",
+            "WHEN transactions_last_30_days < 20 THEN '10 - 19'",
+            "WHEN transactions_last_30_days < 30 THEN '20 - 29'",
+            "ELSE '30+'"
+        ]
+    }
+}
+
+
+def build_filter_conditions(filters):
+    """Build standardized SQL WHERE conditions and params from filters dictionary."""
+    conditions = []
+    params = []
+    if not filters:
+        return conditions, params
+
+    if filters.get("merchant_category") and filters["merchant_category"] != "All":
+        conditions.append("merchant_category = ?")
+        params.append(filters["merchant_category"])
+    if filters.get("location") and filters["location"] != "All":
+        conditions.append("transaction_location = ?")
+        params.append(filters["location"])
+    if filters.get("home_location") and filters["home_location"] != "All":
+        conditions.append("customer_home_location = ?")
+        params.append(filters["home_location"])
+    if filters.get("device_type") and filters["device_type"] != "All":
+        conditions.append("device_type = ?")
+        params.append(filters["device_type"])
+    if filters.get("payment_method") and filters["payment_method"] != "All":
+        conditions.append("payment_method = ?")
+        params.append(filters["payment_method"])
+    if filters.get("risk_profile") and filters["risk_profile"] != "All":
+        conditions.append("customer_risk_profile = ?")
+        params.append(filters["risk_profile"])
+    if filters.get("international_transaction") and filters["international_transaction"] != "All":
+        conditions.append("international_transaction = ?")
+        params.append(filters["international_transaction"])
+    if filters.get("location_mismatch") and filters["location_mismatch"] != "All":
+        conditions.append("location_mismatch = ?")
+        params.append(filters["location_mismatch"])
+    if filters.get("fraud_status") and filters["fraud_status"] != "All":
+        conditions.append("fraud_status = ?")
+        params.append(filters["fraud_status"])
+    if filters.get("is_suspicious") is not None:
+        conditions.append("is_suspicious = ?")
+        params.append(1 if filters["is_suspicious"] else 0)
+    if filters.get("min_amount") is not None:
+        conditions.append("transaction_amount >= ?")
+        params.append(float(filters["min_amount"]))
+    if filters.get("max_amount") is not None:
+        conditions.append("transaction_amount <= ?")
+        params.append(float(filters["max_amount"]))
+    if filters.get("min_age") is not None:
+        conditions.append("customer_age >= ?")
+        params.append(int(filters["min_age"]))
+    if filters.get("max_age") is not None:
+        conditions.append("customer_age <= ?")
+        params.append(int(filters["max_age"]))
+    if filters.get("min_hour") is not None:
+        conditions.append("transaction_hour >= ?")
+        params.append(int(filters["min_hour"]))
+    if filters.get("max_hour") is not None:
+        conditions.append("transaction_hour <= ?")
+        params.append(int(filters["max_hour"]))
+    if filters.get("search"):
+        conditions.append("(transaction_id LIKE ? OR transaction_location LIKE ? OR customer_home_location LIKE ?)")
+        term = f"%{filters['search']}%"
+        params.extend([term, term, term])
+    if filters.get("risk_level") and filters["risk_level"] != "All":
+        rl = filters["risk_level"]
+        if rl == "Low":
+            conditions.append("fraud_risk_score < 40.0")
+        elif rl == "Medium":
+            conditions.append("fraud_risk_score >= 40.0 AND fraud_risk_score < 70.0")
+        elif rl == "High":
+            conditions.append("fraud_risk_score >= 70.0")
+
+    return conditions, params
+
+
+# ─────────────────────────────────────────────────────────────
 # Dashboard Data Queries
 # ─────────────────────────────────────────────────────────────
 def get_dashboard_summary(filters=None):
@@ -479,22 +711,7 @@ def get_dashboard_summary(filters=None):
     if not db_exists():
         return None
 
-    conditions = []
-    params = []
-    if filters:
-        if filters.get("merchant_category"):
-            conditions.append("merchant_category = ?")
-            params.append(filters["merchant_category"])
-        if filters.get("location"):
-            conditions.append("transaction_location = ?")
-            params.append(filters["location"])
-        if filters.get("device_type"):
-            conditions.append("device_type = ?")
-            params.append(filters["device_type"])
-        if filters.get("risk_profile"):
-            conditions.append("customer_risk_profile = ?")
-            params.append(filters["risk_profile"])
-
+    conditions, params = build_filter_conditions(filters)
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
     with get_db() as conn:
@@ -624,36 +841,51 @@ def get_dashboard_summary(filters=None):
     }
 
 
+def get_feature_breakdown(feature_key, filters=None):
+    """Aggregate breakdown and metrics for any model feature from SQLite."""
+    if not db_exists():
+        return None
+    cfg = FEATURE_CONFIG.get(feature_key)
+    if not cfg:
+        return None
+
+    conditions, params = build_filter_conditions(filters)
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+    if cfg["type"] == "cat":
+        expr = cfg["col"]
+        order = f"{cfg['col']} ASC" if cfg["col"] in ["transaction_hour", "transactions_last_24h", "failed_attempts_last_24h"] else "count DESC"
+    else:
+        expr = "CASE " + " ".join(cfg["cases"]) + " END"
+        order = "count DESC"
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"""
+            SELECT {expr} as bucket,
+                   COUNT(*) as count,
+                   SUM(CASE WHEN fraud_status = 'Fraud' THEN 1 ELSE 0 END) as fraud_count,
+                   AVG(fraud_risk_score) as avg_risk,
+                   AVG(transaction_amount) as avg_amount
+            FROM transactions {where_clause}
+            GROUP BY bucket
+            ORDER BY {order}
+        """, params)
+        rows = [dict(r) for r in cursor.fetchall()]
+        for r in rows:
+            r["fraud_rate"] = round(r["fraud_count"] / r["count"] * 100, 2) if r["count"] > 0 else 0.0
+            r["avg_risk"] = round(float(r["avg_risk"] or 0.0), 1)
+            r["avg_amount"] = round(float(r["avg_amount"] or 0.0), 2)
+            r["genuine_count"] = r["count"] - r["fraud_count"]
+        return rows
+
+
 def get_transactions_df(page=1, page_size=50, filters=None):
-    """Fetch paginated transaction data as DataFrame."""
+    """Fetch paginated transaction data as DataFrame with all model feature filters."""
     if not db_exists():
         return pd.DataFrame(), 0
 
-    conditions = []
-    params = []
-    if filters:
-        if filters.get("search"):
-            conditions.append("(transaction_id LIKE ? OR transaction_location LIKE ?)")
-            term = f"%{filters['search']}%"
-            params.extend([term, term])
-        if filters.get("fraud_status"):
-            conditions.append("fraud_status = ?")
-            params.append(filters["fraud_status"])
-        if filters.get("merchant_category"):
-            conditions.append("merchant_category = ?")
-            params.append(filters["merchant_category"])
-        if filters.get("is_suspicious") is not None:
-            conditions.append("is_suspicious = ?")
-            params.append(1 if filters["is_suspicious"] else 0)
-        if filters.get("risk_level"):
-            rl = filters["risk_level"]
-            if rl == "Low":
-                conditions.append("fraud_risk_score < 40.0")
-            elif rl == "Medium":
-                conditions.append("fraud_risk_score >= 40.0 AND fraud_risk_score < 70.0")
-            elif rl == "High":
-                conditions.append("fraud_risk_score >= 70.0")
-
+    conditions, params = build_filter_conditions(filters)
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
     with get_db() as conn:
@@ -808,27 +1040,54 @@ if page == "🏠 Dashboard":
     </div>
     """, unsafe_allow_html=True)
 
-    # Filters
-    with st.expander("🎛️ Global Filters", expanded=False):
+    # Filters - All Model Features
+    with st.expander("🎛️ Global Filters (Filter by All Model Features)", expanded=False):
+        st.markdown("<div style='color: #94a3b8; font-size: 0.85rem; margin-bottom: 8px;'>Filter the entire dashboard intelligence across all features used by the fraud detection model.</div>", unsafe_allow_html=True)
         fcol1, fcol2, fcol3, fcol4 = st.columns(4)
         with fcol1:
-            f_cat = st.selectbox("Merchant Category", ["All"] + MERCHANT_CATEGORIES, key="dash_cat")
+            f_cat = st.selectbox("🏪 Merchant Category", ["All"] + MERCHANT_CATEGORIES, key="dash_cat")
+            f_pay = st.selectbox("💳 Payment Method", ["All"] + PAYMENT_METHODS, key="dash_pay")
+            f_status = st.selectbox("🚨 Fraud Status", ["All", "Fraud", "Genuine"], key="dash_status")
         with fcol2:
-            f_loc = st.selectbox("Location", ["All"] + CITIES, key="dash_loc")
+            f_loc = st.selectbox("📍 Transaction City", ["All"] + CITIES, key="dash_loc")
+            f_risk = st.selectbox("⚠️ Risk Profile", ["All"] + RISK_PROFILES, key="dash_risk")
+            f_susp = st.selectbox("⚡ Suspicious Status", ["All", "Suspicious", "Normal"], key="dash_susp")
         with fcol3:
-            f_dev = st.selectbox("Device Type", ["All"] + DEVICE_TYPES, key="dash_dev")
+            f_home = st.selectbox("🏠 Customer Home City", ["All"] + CITIES, key="dash_home")
+            f_intl = st.selectbox("🌍 International?", ["All", "Yes", "No"], key="dash_intl")
+            f_hour_range = st.slider("⏰ Transaction Hour", 0, 23, (0, 23), key="dash_hour")
         with fcol4:
-            f_risk = st.selectbox("Risk Profile", ["All"] + RISK_PROFILES, key="dash_risk")
+            f_dev = st.selectbox("📱 Device Type", ["All"] + DEVICE_TYPES, key="dash_dev")
+            f_mismatch = st.selectbox("🗺️ Location Mismatch?", ["All", "Yes", "No"], key="dash_mismatch")
+            f_amt_range = st.slider("💰 Amount Range (₹)", 0, 100000, (0, 100000), step=1000, key="dash_amt")
 
     filters = {}
     if f_cat != "All":
         filters["merchant_category"] = f_cat
     if f_loc != "All":
         filters["location"] = f_loc
+    if f_home != "All":
+        filters["home_location"] = f_home
     if f_dev != "All":
         filters["device_type"] = f_dev
+    if f_pay != "All":
+        filters["payment_method"] = f_pay
     if f_risk != "All":
         filters["risk_profile"] = f_risk
+    if f_intl != "All":
+        filters["international_transaction"] = f_intl
+    if f_mismatch != "All":
+        filters["location_mismatch"] = f_mismatch
+    if f_status != "All":
+        filters["fraud_status"] = f_status
+    if f_susp != "All":
+        filters["is_suspicious"] = (f_susp == "Suspicious")
+    if f_amt_range != (0, 100000):
+        filters["min_amount"] = f_amt_range[0]
+        filters["max_amount"] = f_amt_range[1]
+    if f_hour_range != (0, 23):
+        filters["min_hour"] = f_hour_range[0]
+        filters["max_hour"] = f_hour_range[1]
 
     summary = get_dashboard_summary(filters or None)
 
@@ -976,6 +1235,156 @@ if page == "🏠 Dashboard":
             fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
             fig.update_layout(**PLOTLY_LAYOUT, height=350, showlegend=False, coloraxis_showscale=False)
             st.plotly_chart(fig, use_container_width=True)
+
+        # ─────────────────────────────────────────────────────────────
+        # Section: Interactive Feature Analyzer (Analyze All Model Features)
+        # ─────────────────────────────────────────────────────────────
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("---")
+        st.markdown('<div class="section-header">🔬 Model Feature Deep Dive & Interactive Analyzer</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 16px;">
+            Select <b>any feature in the ML model</b> below to inspect its detailed distribution, 
+            fraud rate correlation, and risk metrics across all records.
+        </div>
+        """, unsafe_allow_html=True)
+
+        feature_options = {
+            "merchant_category": "🏪 Merchant Category",
+            "transaction_location": "📍 Transaction City / Location",
+            "customer_home_location": "🏠 Customer Home City",
+            "device_type": "📱 Device Type",
+            "payment_method": "💳 Payment Method",
+            "customer_risk_profile": "⚠️ Customer Risk Profile Tier",
+            "international_transaction": "🌍 International Transaction (Cross-Border)",
+            "location_mismatch": "🗺️ Location Mismatch (Home vs Txn City)",
+            "transaction_hour": "⏰ Transaction Hour (00:00 - 23:00)",
+            "transaction_amount": "💰 Transaction Amount Bins (INR)",
+            "customer_age": "👤 Customer Age Groups",
+            "customer_income_annual": "💼 Annual Income Bins",
+            "distance_from_home_km": "📏 Distance From Home Bins (km)",
+            "customer_avg_transaction_amount": "💵 Customer Avg Ticket Size",
+            "transactions_last_24h": "⚡ Transactions Velocity (Last 24h)",
+            "failed_attempts_last_24h": "🔐 Failed Authentication Attempts (Last 24h)",
+            "customer_tenure_years": "⏳ Customer Relationship Tenure (Years)",
+            "transactions_last_30_days": "📊 Monthly Frequency (Last 30 Days)"
+        }
+
+        sel_feature_col = st.selectbox(
+            "👉 Select Any Feature in the Model to Analyze:",
+            list(feature_options.keys()),
+            format_func=lambda k: feature_options[k],
+            key="dash_feature_selector"
+        )
+
+        feat_data = get_feature_breakdown(sel_feature_col, filters or None)
+        if feat_data:
+            df_feat = pd.DataFrame(feat_data)
+
+            # Show summary KPIs for this selected feature
+            fk1, fk2, fk3, fk4 = st.columns(4)
+            highest_fraud_row = df_feat.loc[df_feat["fraud_rate"].idxmax()]
+            lowest_fraud_row = df_feat.loc[df_feat["fraud_rate"].idxmin()]
+            most_common_row = df_feat.loc[df_feat["count"].idxmax()]
+
+            with fk1:
+                st.markdown(f"""
+                <div class="kpi-card" style="padding: 16px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">HIGHEST FRAUD RATE</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #f43f5e; margin-top: 4px;">{highest_fraud_row['bucket']}</div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">{highest_fraud_row['fraud_rate']}% fraud ({highest_fraud_row['fraud_count']:,} txns)</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with fk2:
+                st.markdown(f"""
+                <div class="kpi-card" style="padding: 16px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">SAFEST CATEGORY / BUCKET</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #10b981; margin-top: 4px;">{lowest_fraud_row['bucket']}</div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">{lowest_fraud_row['fraud_rate']}% fraud ({lowest_fraud_row['fraud_count']:,} txns)</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with fk3:
+                st.markdown(f"""
+                <div class="kpi-card" style="padding: 16px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">HIGHEST VOLUME</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #22d3ee; margin-top: 4px;">{most_common_row['bucket']}</div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">{most_common_row['count']:,} total transactions</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with fk4:
+                st.markdown(f"""
+                <div class="kpi-card" style="padding: 16px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">HIGHEST AVG RISK SCORE</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #f59e0b; margin-top: 4px;">{df_feat.loc[df_feat['avg_risk'].idxmax()]['bucket']}</div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">Score: {df_feat['avg_risk'].max():.1f} / 100</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # Dual-Axis Plotly Chart
+            fig_feature = make_subplots(specs=[[{"secondary_y": True}]])
+            fig_feature.add_trace(
+                go.Bar(
+                    name="Genuine Transactions",
+                    x=df_feat["bucket"],
+                    y=df_feat["genuine_count"],
+                    marker_color="#3b82f6",
+                    opacity=0.85
+                ),
+                secondary_y=False
+            )
+            fig_feature.add_trace(
+                go.Bar(
+                    name="Fraud Transactions",
+                    x=df_feat["bucket"],
+                    y=df_feat["fraud_count"],
+                    marker_color="#ef4444",
+                    opacity=0.9
+                ),
+                secondary_y=False
+            )
+            fig_feature.add_trace(
+                go.Scatter(
+                    name="Fraud Rate (%)",
+                    x=df_feat["bucket"],
+                    y=df_feat["fraud_rate"],
+                    mode="lines+markers+text",
+                    text=[f"{r:.1f}%" for r in df_feat["fraud_rate"]],
+                    textposition="top center",
+                    textfont=dict(color="#f87171", size=11),
+                    line=dict(color="#f43f5e", width=3),
+                    marker=dict(size=8, color="#f43f5e")
+                ),
+                secondary_y=True
+            )
+            feat_layout = {k: v for k, v in PLOTLY_LAYOUT.items() if k != "legend"}
+            fig_feature.update_layout(
+                **feat_layout,
+                height=450,
+                barmode="stack",
+                title=f"Volume & Fraud Rate Breakdown by {feature_options[sel_feature_col]}",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
+            fig_feature.update_yaxes(title_text="Transaction Count", secondary_y=False, gridcolor="rgba(99,102,241,0.08)")
+            fig_feature.update_yaxes(title_text="Fraud Rate (%)", secondary_y=True, gridcolor="rgba(244,63,94,0.08)")
+            st.plotly_chart(fig_feature, use_container_width=True)
+
+            # Detailed Data Breakdown Table
+            with st.expander(f"📋 View Full Data Table for {feature_options[sel_feature_col]}", expanded=False):
+                display_df = df_feat.copy()
+                display_df = display_df.rename(columns={
+                    "bucket": "Feature Value / Bucket",
+                    "count": "Total Volume",
+                    "genuine_count": "Genuine Count",
+                    "fraud_count": "Fraud Count",
+                    "fraud_rate": "Fraud Rate (%)",
+                    "avg_risk": "Avg Risk Score (0-100)",
+                    "avg_amount": "Avg Amount (₹)"
+                })
+                display_df["Avg Amount (₹)"] = display_df["Avg Amount (₹)"].apply(lambda x: f"₹{x:,.2f}")
+                display_df["Fraud Rate (%)"] = display_df["Fraud Rate (%)"].apply(lambda x: f"{x:.2f}%")
+                st.dataframe(display_df, use_container_width=True, hide_index=True)
     else:
         st.warning("⚠️ No database available. Please seed the database first.")
 
@@ -1001,96 +1410,136 @@ elif page == "🔍 Transaction Check":
     with pc1:
         if st.button("✅ Safe Transaction", use_container_width=True, type="secondary"):
             st.session_state["preset"] = {
-                "amount": 2500.0, "category": "Grocery", "age": 32,
+                "amount": 2500.0, "avg_amount": 2400.0, "category": "Grocery", "age": 32,
                 "income": 750000, "risk": "Low", "home": "Mumbai",
-                "txn_loc": "Mumbai", "device": "Mobile", "payment": "Online",
-                "intl": "No", "fails": 0, "tx24h": 2
+                "txn_loc": "Mumbai", "distance": 0.0, "loc_mismatch": "No",
+                "device": "Mobile", "payment": "Online",
+                "intl": "No", "fails": 0, "tx24h": 2, "tenure": 4.0, "tx30d": 18
             }
     with pc2:
         if st.button("⚠️ Medium Risk", use_container_width=True, type="secondary"):
             st.session_state["preset"] = {
-                "amount": 15000.0, "category": "Electronics", "age": 28,
+                "amount": 15000.0, "avg_amount": 5000.0, "category": "Electronics", "age": 28,
                 "income": 500000, "risk": "Medium", "home": "Delhi",
-                "txn_loc": "Jaipur", "device": "Laptop", "payment": "Contactless",
-                "intl": "No", "fails": 1, "tx24h": 4
+                "txn_loc": "Jaipur", "distance": 280.0, "loc_mismatch": "Yes",
+                "device": "Laptop", "payment": "Contactless",
+                "intl": "No", "fails": 1, "tx24h": 4, "tenure": 2.0, "tx30d": 22
             }
     with pc3:
         if st.button("🚨 High Risk / Fraud", use_container_width=True, type="primary"):
             st.session_state["preset"] = {
-                "amount": 48000.0, "category": "Jewelry", "age": 45,
+                "amount": 48000.0, "avg_amount": 3500.0, "category": "Jewelry", "age": 45,
                 "income": 400000, "risk": "High", "home": "Chennai",
-                "txn_loc": "Delhi", "device": "Tablet", "payment": "Mobile Wallet",
-                "intl": "Yes", "fails": 3, "tx24h": 7
+                "txn_loc": "Delhi", "distance": 1750.0, "loc_mismatch": "Yes",
+                "device": "Tablet", "payment": "Mobile Wallet",
+                "intl": "Yes", "fails": 3, "tx24h": 7, "tenure": 1.0, "tx30d": 35
             }
 
     preset = st.session_state.get("preset", {})
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Input Form
+    # Input Form - All Model Features
     with st.form("txn_form", clear_on_submit=False):
-        st.markdown('<div class="section-header">📝 Transaction Details</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">📝 Transaction Details (All Model Features)</div>', unsafe_allow_html=True)
 
-        c1, c2, c3, c4 = st.columns(4)
+        # Section 1: Financial & Core Transaction Attributes
+        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #a5b4fc; margin-bottom: 8px;'>💰 FINANCIAL & TRANSACTION BASICS</div>", unsafe_allow_html=True)
+        c1, c2, c3, c4, c5 = st.columns(5)
         with c1:
-            amount = st.number_input("💰 Transaction Amount (₹)", min_value=1.0,
-                                     value=preset.get("amount", 5000.0), step=100.0)
+            amount = st.number_input("Transaction Amount (₹)", min_value=1.0,
+                                     value=float(preset.get("amount", 5000.0)), step=100.0)
         with c2:
-            category = st.selectbox("🏪 Merchant Category", MERCHANT_CATEGORIES,
-                                    index=MERCHANT_CATEGORIES.index(preset.get("category", "Online Shopping")))
+            avg_amount = st.number_input("Customer Avg Ticket (₹)", min_value=1.0,
+                                         value=float(preset.get("avg_amount", 5000.0)), step=100.0)
         with c3:
-            txn_date = st.date_input("📅 Transaction Date", value=datetime.now().date())
+            category = st.selectbox("Merchant Category", MERCHANT_CATEGORIES,
+                                    index=MERCHANT_CATEGORIES.index(preset.get("category", "Online Shopping")))
         with c4:
-            txn_time = st.time_input("🕐 Transaction Time", value=datetime.now().time())
-
-        c5, c6, c7, c8 = st.columns(4)
+            txn_date = st.date_input("Transaction Date", value=datetime.now().date())
         with c5:
-            age = st.number_input("👤 Customer Age", min_value=18, max_value=100,
-                                  value=preset.get("age", 35))
-        with c6:
-            income = st.number_input("💼 Annual Income (₹)", min_value=0,
-                                     value=preset.get("income", 600000), step=50000)
-        with c7:
-            risk_profile = st.selectbox("⚠️ Risk Profile", RISK_PROFILES,
-                                        index=RISK_PROFILES.index(preset.get("risk", "Medium")))
-        with c8:
-            home_loc = st.selectbox("🏠 Home City", CITIES,
-                                    index=CITIES.index(preset.get("home", "Mumbai")))
+            txn_time = st.time_input("Transaction Time", value=datetime.now().time())
 
-        c9, c10, c11, c12 = st.columns(4)
-        with c9:
+        # Section 2: Geospatial & Distance Attributes
+        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #a5b4fc; margin: 16px 0 8px;'>📍 GEOSPATIAL & LOCATION ATTRIBUTES</div>", unsafe_allow_html=True)
+        g1, g2, g3, g4 = st.columns(4)
+        with g1:
+            home_loc = st.selectbox("🏠 Customer Home City", CITIES,
+                                    index=CITIES.index(preset.get("home", "Mumbai")))
+        with g2:
             txn_loc = st.selectbox("📍 Transaction City", CITIES,
                                    index=CITIES.index(preset.get("txn_loc", "Mumbai")))
-        with c10:
-            device = st.selectbox("📱 Device Type", DEVICE_TYPES,
+        with g3:
+            default_dist = preset.get("distance", 0.0 if home_loc == txn_loc else 350.0)
+            distance = st.number_input("📏 Distance From Home (km)", min_value=0.0,
+                                       value=float(default_dist), step=25.0)
+        with g4:
+            mismatch_opts = ["Auto-Detect", "Yes", "No"]
+            preset_mismatch = preset.get("loc_mismatch", "Auto-Detect")
+            loc_mismatch_choice = st.selectbox("🗺️ Location Mismatch?", mismatch_opts,
+                                              index=mismatch_opts.index(preset_mismatch) if preset_mismatch in mismatch_opts else 0)
+
+        # Section 3: Customer & Account Profile
+        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #a5b4fc; margin: 16px 0 8px;'>👤 CUSTOMER PROFILE & BEHAVIORAL HISTORY</div>", unsafe_allow_html=True)
+        cp1, cp2, cp3, cp4, cp5 = st.columns(5)
+        with cp1:
+            age = st.number_input("Customer Age", min_value=18, max_value=100,
+                                  value=int(preset.get("age", 35)))
+        with cp2:
+            income = st.number_input("Annual Income (₹)", min_value=0,
+                                     value=int(preset.get("income", 600000)), step=50000)
+        with cp3:
+            risk_profile = st.selectbox("Risk Profile Tier", RISK_PROFILES,
+                                        index=RISK_PROFILES.index(preset.get("risk", "Medium")))
+        with cp4:
+            tenure = st.number_input("Customer Tenure (years)", min_value=0.0,
+                                     value=float(preset.get("tenure", 3.0)), step=0.5)
+        with cp5:
+            txns_30d = st.number_input("Txns Last 30 Days", min_value=0,
+                                       value=int(preset.get("tx30d", 15)))
+
+        # Section 4: Channel, Device & Security Risk
+        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #a5b4fc; margin: 16px 0 8px;'>📱 CHANNEL, DEVICE & VELOCITY ATTRIBUTES</div>", unsafe_allow_html=True)
+        cd1, cd2, cd3, cd4, cd5 = st.columns(5)
+        with cd1:
+            device = st.selectbox("Device Type", DEVICE_TYPES,
                                   index=DEVICE_TYPES.index(preset.get("device", "Mobile")))
-        with c11:
-            payment = st.selectbox("💳 Payment Method", PAYMENT_METHODS,
+        with cd2:
+            payment = st.selectbox("Payment Method", PAYMENT_METHODS,
                                    index=PAYMENT_METHODS.index(preset.get("payment", "Online")))
-        with c12:
-            intl = st.selectbox("🌍 International?", ["No", "Yes"],
+        with cd3:
+            intl = st.selectbox("International?", ["No", "Yes"],
                                 index=1 if preset.get("intl") == "Yes" else 0)
+        with cd4:
+            txns_24h = st.number_input("Transactions (Last 24h)", min_value=0,
+                                       value=int(preset.get("tx24h", 1)))
+        with cd5:
+            failed_attempts = st.number_input("Failed Attempts (Last 24h)", min_value=0,
+                                              value=int(preset.get("fails", 0)))
 
-        # Advanced
-        with st.expander("🔧 Advanced Attributes"):
-            ac1, ac2, ac3, ac4 = st.columns(4)
-            with ac1:
-                tenure = st.number_input("Tenure (years)", min_value=0.0, value=3.0, step=0.5)
-            with ac2:
-                txns_30d = st.number_input("Txns Last 30 Days", min_value=0, value=15)
-            with ac3:
-                failed_attempts = st.number_input("Failed Attempts (24h)", min_value=0,
-                                                   value=preset.get("fails", 0))
-            with ac4:
-                txns_24h = st.number_input("Txns Last 24h", min_value=0,
-                                           value=preset.get("tx24h", 1))
+        # Live Derived Features Indicator
+        calc_ratio = amount / (avg_amount + 1e-5)
+        calc_velocity = txns_24h + failed_attempts
+        calc_night = "Yes 🌙" if 0 <= txn_time.hour <= 5 else "No ☀️"
+        calc_mismatch = (loc_mismatch_choice if loc_mismatch_choice != "Auto-Detect" else ("Yes ⚠️" if home_loc != txn_loc else "No ✅"))
 
-        submitted = st.form_submit_button("🚀 Analyze Transaction", use_container_width=True, type="primary")
+        st.markdown(f"""
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px dashed rgba(99, 102, 241, 0.3); border-radius: 10px; padding: 10px 16px; margin: 14px 0;">
+            <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 600;">📐 DERIVED MODEL FEATURES PREVIEW:</span>&nbsp;&nbsp;
+            <span style="font-size: 0.8rem; color: #cbd5e1;">Spending Ratio: <b>{calc_ratio:.2f}x</b></span> &nbsp;•&nbsp;
+            <span style="font-size: 0.8rem; color: #cbd5e1;">Velocity Score: <b>{calc_velocity}</b></span> &nbsp;•&nbsp;
+            <span style="font-size: 0.8rem; color: #cbd5e1;">Late Night Flag: <b>{calc_night}</b></span> &nbsp;•&nbsp;
+            <span style="font-size: 0.8rem; color: #cbd5e1;">Location Mismatch: <b>{calc_mismatch}</b></span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        submitted = st.form_submit_button("🚀 Analyze Transaction with All Features", use_container_width=True, type="primary")
 
     if submitted and engine.get("loaded"):
         txn_datetime = datetime.combine(txn_date, txn_time).strftime("%Y-%m-%d %H:%M:%S")
         txn_dict = {
             "transaction_amount": amount,
+            "customer_avg_transaction_amount": avg_amount,
             "merchant_category": category,
             "transaction_datetime": txn_datetime,
             "customer_age": age,
@@ -1098,6 +1547,8 @@ elif page == "🔍 Transaction Check":
             "customer_risk_profile": risk_profile,
             "customer_home_location": home_loc,
             "transaction_location": txn_loc,
+            "distance_from_home_km": distance,
+            "location_mismatch": None if loc_mismatch_choice == "Auto-Detect" else loc_mismatch_choice,
             "device_type": device,
             "payment_method": payment,
             "international_transaction": intl,
@@ -1338,6 +1789,17 @@ elif page == "📋 Transaction Explorer":
         with fc5:
             susp = st.selectbox("Suspicious", ["All", "Yes", "No"], key="exp_susp")
 
+        with st.expander("🔧 Additional Feature Filters", expanded=False):
+            ef1, ef2, ef3, ef4 = st.columns(4)
+            with ef1:
+                dev = st.selectbox("Device Type", ["All"] + DEVICE_TYPES, key="exp_dev")
+            with ef2:
+                pay = st.selectbox("Payment Method", ["All"] + PAYMENT_METHODS, key="exp_pay")
+            with ef3:
+                intl = st.selectbox("International?", ["All", "Yes", "No"], key="exp_intl")
+            with ef4:
+                mismatch = st.selectbox("Location Mismatch?", ["All", "Yes", "No"], key="exp_mismatch")
+
         filters = {}
         if search:
             filters["search"] = search
@@ -1349,6 +1811,14 @@ elif page == "📋 Transaction Explorer":
             filters["risk_level"] = rl
         if susp != "All":
             filters["is_suspicious"] = susp == "Yes"
+        if dev != "All":
+            filters["device_type"] = dev
+        if pay != "All":
+            filters["payment_method"] = pay
+        if intl != "All":
+            filters["international_transaction"] = intl
+        if mismatch != "All":
+            filters["location_mismatch"] = mismatch
 
         # Pagination
         page_size = 50
@@ -1531,21 +2001,63 @@ elif page == "🧠 Model Insights":
         st.plotly_chart(fig, use_container_width=True)
 
         # Feature Importances
-        st.markdown('<div class="section-header">🔬 Top Feature Importances (Classifier)</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🔬 Feature Importances & Model Weights</div>', unsafe_allow_html=True)
+        st.markdown("Analyze the relative importance and coefficients for all 55 features utilized by the model (including one-hot categories and engineered behavioral features).")
+        
         fi = engine["feature_importances"]
-        fi_df = pd.DataFrame([
+        fi_all_df = pd.DataFrame([
             {"Feature": k, "Importance": v}
             for k, v in sorted(fi.items(), key=lambda x: x[1], reverse=True)
         ])
+        
+        f_ctrl1, f_ctrl2 = st.columns([1, 2])
+        with f_ctrl1:
+            fi_scope = st.radio("Display Scope:", ["Top 15 Primary Drivers", "Top 25 Important Features", "All 55 Features in Model"], horizontal=True, key="fi_scope_radio")
+        with f_ctrl2:
+            fi_search = st.text_input("🔍 Search Any Feature by Name", "", key="fi_search_box")
 
+        plot_df = fi_all_df.copy()
+        if fi_search:
+            plot_df = plot_df[plot_df["Feature"].str.contains(fi_search, case=False)]
+        elif fi_scope == "Top 15 Primary Drivers":
+            plot_df = plot_df.head(15)
+        elif fi_scope == "Top 25 Important Features":
+            plot_df = plot_df.head(25)
+
+        chart_height = max(420, min(1200, len(plot_df) * 22))
         fig = px.bar(
-            fi_df, x="Importance", y="Feature", orientation="h",
+            plot_df, x="Importance", y="Feature", orientation="h",
             color="Importance",
             color_continuous_scale=["#6366f1", "#22d3ee", "#f43f5e"],
+            labels={"Importance": "Model Weight / Absolute Importance", "Feature": "Feature Name"}
         )
-        fig.update_layout(**PLOTLY_LAYOUT, height=500, showlegend=False, coloraxis_showscale=False,
+        fig.update_layout(**PLOTLY_LAYOUT, height=chart_height, showlegend=False, coloraxis_showscale=False,
                           yaxis=dict(autorange="reversed", gridcolor="rgba(99,102,241,0.08)"))
         st.plotly_chart(fig, use_container_width=True)
+
+        with st.expander("📋 View Complete 55-Feature Catalog with Classifications & Weights", expanded=False):
+            catalog_rows = []
+            for _, r in fi_all_df.iterrows():
+                fname = r["Feature"]
+                imp = r["Importance"]
+                if "Merchant_Category" in fname:
+                    cat = "Merchant Category (One-Hot)"
+                elif "Device_Type" in fname:
+                    cat = "Device Type (One-Hot)"
+                elif "Payment_Method" in fname:
+                    cat = "Payment Method (One-Hot)"
+                elif "Customer_Home_Location" in fname:
+                    cat = "Customer Home City (One-Hot)"
+                elif "Transaction_Location" in fname:
+                    cat = "Transaction City (One-Hot)"
+                elif fname in ["is_night_transaction", "amount_vs_avg_ratio", "velocity_score", "day_of_week"]:
+                    cat = "Engineered Behavioral Feature"
+                elif fname in ["Location_Mismatch_Bin", "International_Transaction_Bin", "Customer_Risk_Profile_Ord"]:
+                    cat = "Encoded Ordinal / Binary Attribute"
+                else:
+                    cat = "Normalized Numerical Feature"
+                catalog_rows.append({"Feature Name": fname, "Feature Category": cat, "Absolute Importance Score": f"{imp:.4f}"})
+            st.dataframe(pd.DataFrame(catalog_rows), use_container_width=True, hide_index=True)
 
         # Threshold Config
         st.markdown('<div class="section-header">⚙️ Threshold Configuration</div>', unsafe_allow_html=True)
