@@ -1,0 +1,99 @@
+{
+  "classification_models": {
+    "Logistic Regression": {
+      "precision": 0.154,
+      "recall": 0.6471,
+      "f1": 0.2488,
+      "roc_auc": 0.7148,
+      "pr_auc": 0.2029,
+      "confusion_matrix": [
+        [
+          3142,
+          1450
+        ],
+        [
+          144,
+          264
+        ]
+      ]
+    },
+    "Random Forest": {
+      "precision": 0.1783,
+      "recall": 0.527,
+      "f1": 0.2664,
+      "roc_auc": 0.7085,
+      "pr_auc": 0.199,
+      "confusion_matrix": [
+        [
+          3601,
+          991
+        ],
+        [
+          193,
+          215
+        ]
+      ]
+    },
+    "XGBoost": {
+      "precision": 0.1803,
+      "recall": 0.4265,
+      "f1": 0.2535,
+      "roc_auc": 0.6666,
+      "pr_auc": 0.1717,
+      "confusion_matrix": [
+        [
+          3801,
+          791
+        ],
+        [
+          234,
+          174
+        ]
+      ]
+    },
+    "LightGBM": {
+      "precision": 0.1731,
+      "recall": 0.4534,
+      "f1": 0.2505,
+      "roc_auc": 0.6811,
+      "pr_auc": 0.1684,
+      "confusion_matrix": [
+        [
+          3708,
+          884
+        ],
+        [
+          223,
+          185
+        ]
+      ]
+    }
+  },
+  "regression_models": {
+    "Random Forest Regressor": {
+      "mae": 5.3176,
+      "rmse": 7.1037,
+      "r2": 0.7888
+    },
+    "Gradient Boosting Regressor": {
+      "mae": 5.1328,
+      "rmse": 6.9113,
+      "r2": 0.8001
+    },
+    "XGBoost Regressor": {
+      "mae": 5.1557,
+      "rmse": 6.9311,
+      "r2": 0.799
+    },
+    "LightGBM Regressor": {
+      "mae": 5.1257,
+      "rmse": 6.8996,
+      "r2": 0.8008
+    }
+  },
+  "best_classifier": "Logistic Regression",
+  "best_regressor": "LightGBM Regressor",
+  "train_samples": 20000,
+  "test_samples": 5000,
+  "total_features": 55
+}

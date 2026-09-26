@@ -1,0 +1,17 @@
+{
+  "Location_Mismatch_Bin": 0.869419550884845,
+  "International_Transaction_Bin": 0.7723303056679286,
+  "is_night_transaction": 0.7001654928058978,
+  "Merchant_Category_Clothing": 0.4862121036601795,
+  "Customer_Risk_Profile_Ord": 0.4770863204365518,
+  "Device_Type_Tablet": 0.42032718379437206,
+  "Merchant_Category_Restaurants": 0.3481180345016357,
+  "Customer_Home_Location_Hyderabad": 0.31155007669873347,
+  "Payment_Method_Contactless": 0.30901075714563453,
+  "Transaction_Amount": 0.30107652989985234,
+  "Payment_Method_Chip & PIN": 0.29523067010881043,
+  "Device_Type_Mobile": 0.2899402816671331,
+  "Merchant_Category_Healthcare": 0.27639691464176624,
+  "Payment_Method_Online": 0.2721795649854057,
+  "Payment_Method_Mobile Wallet": 0.2590591782296588
+}

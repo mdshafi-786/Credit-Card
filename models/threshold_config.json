@@ -1,0 +1,38 @@
+{
+  "fraud_probability_threshold": 0.5,
+  "risk_score_suspicious_threshold": 60.0,
+  "risk_tiers": {
+    "Low": [
+      0.0,
+      39.9
+    ],
+    "Medium": [
+      40.0,
+      69.9
+    ],
+    "High": [
+      70.0,
+      100.0
+    ]
+  },
+  "heuristic_rules": {
+    "high_velocity": {
+      "min_velocity": 4,
+      "weight": 15
+    },
+    "location_mismatch_far": {
+      "min_distance_km": 150.0,
+      "weight": 20
+    },
+    "night_high_amount": {
+      "min_amount_ratio": 2.5,
+      "is_night": 1,
+      "weight": 25
+    },
+    "multiple_failed_attempts": {
+      "min_failed": 2,
+      "weight": 20
+    }
+  },
+  "suspicious_logic_description": "A transaction is marked suspicious if: predicted risk_score >= 60.0 OR classifier fraud_probability >= 0.50 OR (Location_Mismatch=Yes AND Distance_From_Home_km > 150 AND Failed_Attempts_Last_24h >= 2)"
+}
