@@ -995,7 +995,7 @@ def render_risk_gauge(score, fraud_prob, fraud_status, is_suspicious):
     ))
     fig.update_layout(
         height=280,
-        **{k: v for k, v in PLOTLY_LAYOUT.items() if k not in ['xaxis', 'yaxis']},
+        **{k: v for k, v in PLOTLY_LAYOUT.items() if k not in ['xaxis', 'yaxis', 'margin']},
         margin=dict(l=30, r=30, t=60, b=20)
     )
     return fig
@@ -1035,17 +1035,15 @@ with st.sidebar:
     if sidebar_current not in PAGES:
         sidebar_current = PAGES[0]
 
-    def on_sidebar_change():
-        st.session_state["current_page"] = st.session_state["sidebar_radio"]
-
-    st.radio(
+    selected_sidebar = st.radio(
         "Navigation",
         PAGES,
         index=PAGES.index(sidebar_current),
-        key="sidebar_radio",
-        on_change=on_sidebar_change,
         label_visibility="collapsed"
     )
+    if selected_sidebar != sidebar_current:
+        st.session_state["current_page"] = selected_sidebar
+        st.rerun()
 
     st.markdown("---")
 
@@ -1086,28 +1084,22 @@ top_c1, top_c2, top_c3 = st.columns([2.5, 7, 2.5])
 with top_c1:
     if st.button(f"⬅️ {PAGES[prev_idx]}", key="top_prev_btn", use_container_width=True, help=f"Switch to {PAGES[prev_idx]}"):
         st.session_state["current_page"] = PAGES[prev_idx]
-        st.session_state["sidebar_radio"] = PAGES[prev_idx]
         st.rerun()
 
 with top_c2:
-    def on_segmented_change():
-        if st.session_state.get("top_segmented_nav"):
-            st.session_state["current_page"] = st.session_state["top_segmented_nav"]
-            st.session_state["sidebar_radio"] = st.session_state["top_segmented_nav"]
-
-    st.segmented_control(
+    selected_top = st.segmented_control(
         "Page Navigation",
         PAGES,
         default=current_page,
-        key="top_segmented_nav",
-        on_change=on_segmented_change,
         label_visibility="collapsed"
     )
+    if selected_top and selected_top != current_page:
+        st.session_state["current_page"] = selected_top
+        st.rerun()
 
 with top_c3:
     if st.button(f"{PAGES[next_idx]} ➡️", key="top_next_btn", use_container_width=True, help=f"Switch to {PAGES[next_idx]}"):
         st.session_state["current_page"] = PAGES[next_idx]
-        st.session_state["sidebar_radio"] = PAGES[next_idx]
         st.rerun()
 
 st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
@@ -2226,7 +2218,6 @@ bot_c1, bot_c2, bot_c3 = st.columns([3, 4, 3])
 with bot_c1:
     if st.button(f"⬅️ Previous: {PAGES[prev_idx]}", key="bot_arrow_prev", use_container_width=True):
         st.session_state["current_page"] = PAGES[prev_idx]
-        st.session_state["sidebar_radio"] = PAGES[prev_idx]
         st.rerun()
 with bot_c2:
     st.markdown(f"""
@@ -2237,7 +2228,6 @@ with bot_c2:
 with bot_c3:
     if st.button(f"Next: {PAGES[next_idx]} ➡️", key="bot_arrow_next", use_container_width=True, type="primary"):
         st.session_state["current_page"] = PAGES[next_idx]
-        st.session_state["sidebar_radio"] = PAGES[next_idx]
         st.rerun()
 
 
