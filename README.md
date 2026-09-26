@@ -4,6 +4,69 @@ An enterprise-grade, end-to-end Credit Card Fraud Detection and Transaction Risk
 
 ---
 
+## 👥 Team & Contributions
+
+> **This is a collaborative group project built by a team of 6 engineers.**
+
+<table>
+  <tr>
+    <th>👤 Member</th>
+    <th>🎯 Role</th>
+    <th>📦 Key Deliverables</th>
+  </tr>
+  <tr>
+    <td><b>⭐ SHAFI</b></td>
+    <td>🏆 <b>Team Leader</b> · Model Deployment</td>
+    <td>Project leadership, architecture design, end-to-end model deployment & production release</td>
+  </tr>
+  <tr>
+    <td><b>NITIN</b></td>
+    <td>⚙️ Backend Development</td>
+    <td>FastAPI server, API endpoints, SQLite persistence, transaction service & backend test suite</td>
+  </tr>
+  <tr>
+    <td><b>SHAURYA</b></td>
+    <td>🗄️ Database & Dataset Cleaning</td>
+    <td>Raw data preprocessing, feature cleaning, data validation & Parquet optimization</td>
+  </tr>
+  <tr>
+    <td><b>DURGA</b></td>
+    <td>🤖 Model Building</td>
+    <td>Fraud classifier, risk score regressor, feature engineering, model evaluation & selection</td>
+  </tr>
+  <tr>
+    <td><b>RIZWAN</b></td>
+    <td>🎨 Frontend Development</td>
+    <td>React + TypeScript UI, interactive dashboards, risk gauge, batch upload & analytics views</td>
+  </tr>
+  <tr>
+    <td><b>MOULI</b></td>
+    <td>🧪 Testing & Quality Assurance</td>
+    <td>Integration testing, verification gates, quality assurance & documentation support</td>
+  </tr>
+</table>
+
+### 🔄 Team Workflow
+
+```mermaid
+flowchart LR
+    A["🗄️ SHAURYA\nDataset Cleaning"] --> B["🤖 DURGA\nModel Building"]
+    B --> C["⚙️ NITIN\nBackend API"]
+    C --> D["🎨 RIZWAN\nFrontend UI"]
+    D --> E["🚀 SHAFI\nDeployment"]
+    E --> F["🧪 MOULI\nTesting & QA"]
+    F -.->|"Feedback"| B
+
+    style A fill:#4CAF50,color:#fff
+    style B fill:#FF9800,color:#fff
+    style C fill:#2196F3,color:#fff
+    style D fill:#9C27B0,color:#fff
+    style E fill:#F44336,color:#fff
+    style F fill:#00BCD4,color:#fff
+```
+
+---
+
 ## System Architecture
 
 ```mermaid
