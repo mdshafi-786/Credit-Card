@@ -8,25 +8,25 @@ An enterprise-grade, end-to-end Credit Card Fraud Detection and Transaction Risk
 
 ```mermaid
 flowchart TD
-    subgraph Data & Pipeline
-        RawData[credit_card_fraud_transaction_risk_cleaned.xlsx] --> Pipeline[train_pipeline.py]
-        Pipeline --> EDA[notebooks/eda_outputs/]
-        Pipeline --> Artifacts[models/: Classifier, Regressor, Scaler, Encoders, Thresholds]
+    subgraph DPL ["Data & Pipeline"]
+        RawData["credit_card_fraud_transaction_risk_cleaned.xlsx"] --> Pipeline["train_pipeline.py"]
+        Pipeline --> EDA["notebooks/eda_outputs/"]
+        Pipeline --> Artifacts["models/ : Classifier, Regressor, Scaler, Encoders, Thresholds"]
     end
 
-    subgraph Backend Engine [FastAPI @ :8000]
-        Artifacts --> MLEngine[backend/app/ml/engine.py]
-        SQLite[(backend/transactions.db - 25,000+ Records)] <--> TxService[TransactionService]
-        MLEngine --> Routers[Routers: /predict, /predict/batch, /transactions, /dashboard/summary, /health]
+    subgraph BE ["Backend Engine — FastAPI @ port 8000"]
+        Artifacts --> MLEngine["backend/app/ml/engine.py"]
+        SQLite[("backend/transactions.db — 25000+ Records")] <--> TxService["TransactionService"]
+        MLEngine --> Routers["Routers: predict, predict-batch, transactions, dashboard-summary, health"]
         Routers <--> TxService
     end
 
-    subgraph Frontend Interface [React + Vite @ :5173]
-        Routers <--> APIClient[frontend/src/api/client.ts]
-        APIClient --> V1[1. Transaction Check & Gauge]
-        APIClient --> V2[2. Batch CSV Ingestion & Export]
-        APIClient --> V3[3. Transaction Explorer & Modal]
-        APIClient --> V4[4. Fraud Analytics Dashboard]
+    subgraph FE ["Frontend Interface — React + Vite @ port 5173"]
+        Routers <--> APIClient["frontend/src/api/client.ts"]
+        APIClient --> V1["1. Transaction Check & Gauge"]
+        APIClient --> V2["2. Batch CSV Ingestion & Export"]
+        APIClient --> V3["3. Transaction Explorer & Modal"]
+        APIClient --> V4["4. Fraud Analytics Dashboard"]
     end
 ```
 
