@@ -75,7 +75,8 @@ Streamlit Cloud auto-detects:
 
 ### 🌐 App URL
 
-After deployment, your app will be available at:
+The live application is hosted at:
 ```
-https://YOUR_APP_NAME.streamlit.app
+https://credit-card-fraud-sheild-ai.streamlit.app/
 ```
+

@@ -1,5 +1,11 @@
 # FraudShield AI — Credit Card Fraud Detection and Transaction Risk Intelligence
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://credit-card-fraud-sheild-ai.streamlit.app/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit%20Cloud-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://credit-card-fraud-sheild-ai.streamlit.app/)
+
+> 🚀 **Live Web Application:** [https://credit-card-fraud-sheild-ai.streamlit.app/](https://credit-card-fraud-sheild-ai.streamlit.app/)  
+> Experience the full FraudShield AI interactive detection platform in real time on Streamlit Community Cloud.
+
 An enterprise-grade, end-to-end Credit Card Fraud Detection and Transaction Risk Analysis platform built with a dual Machine Learning architecture (Logistic Regression Fraud Classifier + LightGBM Continuous Risk Score Regressor + Behavioral Heuristic Engine), a robust FastAPI backend with SQLite persistence, and an interactive React + TypeScript + Tailwind CSS analytics dashboard.
 
 ---
@@ -218,10 +224,19 @@ npm run dev -- --host 127.0.0.1 --port 5173
 ```
 Access the application at: [http://127.0.0.1:5173](http://127.0.0.1:5173)
 
+### 7. Launch Streamlit Cloud & Local App
+- **Live Deployed App**: [https://credit-card-fraud-sheild-ai.streamlit.app/](https://credit-card-fraud-sheild-ai.streamlit.app/)
+- **Run Locally via Streamlit**:
+```powershell
+streamlit run streamlit_app.py
+```
+
 ---
 
 ## Repository Artifact Directory Structure
 ```
+├── streamlit_app.py                                  # Streamlit Cloud deployment entry point
+├── DEPLOY.md                                         # Streamlit Cloud deployment guide
 ├── credit_card_fraud_transaction_risk_cleaned.xlsx   # Source dataset
 ├── transactions.parquet                               # Optimized dataset
 ├── train_pipeline.py                                 # Phase 1 training pipeline
