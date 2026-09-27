@@ -2111,8 +2111,8 @@ elif page == "🧠 Model Insights":
             color_continuous_scale=["#6366f1", "#22d3ee", "#f43f5e"],
             labels={"Importance": "Model Weight / Absolute Importance", "Feature": "Feature Name"}
         )
-        fig.update_layout(**PLOTLY_LAYOUT, height=chart_height, showlegend=False, coloraxis_showscale=False,
-                          yaxis=dict(autorange="reversed", gridcolor="rgba(99,102,241,0.08)"))
+        fig.update_layout(**PLOTLY_LAYOUT, height=chart_height, showlegend=False, coloraxis_showscale=False)
+        fig.update_yaxes(autorange="reversed")
         st.plotly_chart(fig, use_container_width=True)
 
         with st.expander("📋 View Complete 55-Feature Catalog with Classifications & Weights", expanded=False):
