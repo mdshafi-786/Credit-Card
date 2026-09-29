@@ -21,16 +21,6 @@ An enterprise-grade, end-to-end Credit Card Fraud Detection and Transaction Risk
     <th>📦 Key Deliverables</th>
   </tr>
   <tr>
-    <td><b>⭐ NITIN</b></td>
-    <td>🏆 <b>Team Leader</b> · Backend Development</td>
-    <td>Project leadership, architecture design, FastAPI server, API endpoints, SQLite persistence & backend test suite</td>
-  </tr>
-  <tr>
-    <td><b>SHAFI</b></td>
-    <td>🚀 Model Deployment</td>
-    <td>End-to-end model deployment, production release, Streamlit Cloud deployment & CI/CD pipeline</td>
-  </tr>
-  <tr>
     <td><b>SHAURYA</b></td>
     <td>🗄️ Database & Dataset Cleaning</td>
     <td>Raw data preprocessing, feature cleaning, data validation & Parquet optimization</td>
@@ -41,9 +31,19 @@ An enterprise-grade, end-to-end Credit Card Fraud Detection and Transaction Risk
     <td>Fraud classifier, risk score regressor, feature engineering, model evaluation & selection</td>
   </tr>
   <tr>
+    <td><b>⭐ NITIN</b></td>
+    <td>🏆 <b>Team Leader</b> · Backend Development</td>
+    <td>Project leadership, architecture design, FastAPI server, API endpoints, SQLite persistence & backend test suite</td>
+  </tr>
+  <tr>
     <td><b>RIZWAN</b></td>
     <td>🎨 Frontend Development</td>
     <td>React + TypeScript UI, interactive dashboards, risk gauge, batch upload & analytics views</td>
+  </tr>
+  <tr>
+    <td><b>SHAFI</b></td>
+    <td>🚀 Model Deployment</td>
+    <td>End-to-end model deployment, production release, Streamlit Cloud deployment & CI/CD pipeline</td>
   </tr>
   <tr>
     <td><b>MOULI</b></td>
