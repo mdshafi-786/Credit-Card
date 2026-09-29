@@ -21,12 +21,12 @@ An enterprise-grade, end-to-end Credit Card Fraud Detection and Transaction Risk
     <th>📦 Key Deliverables</th>
   </tr>
   <tr>
-    <td><b>⭐ SHAFI</b></td>
+    <td><b>⭐ NITIN</b></td>
     <td>🏆 <b>Team Leader</b> · Model Deployment</td>
     <td>Project leadership, architecture design, end-to-end model deployment & production release</td>
   </tr>
   <tr>
-    <td><b>NITIN</b></td>
+    <td><b>SHAFI</b></td>
     <td>⚙️ Backend Development</td>
     <td>FastAPI server, API endpoints, SQLite persistence, transaction service & backend test suite</td>
   </tr>
@@ -57,9 +57,9 @@ An enterprise-grade, end-to-end Credit Card Fraud Detection and Transaction Risk
 ```mermaid
 flowchart LR
     A["🗄️ SHAURYA\nDataset Cleaning"] --> B["🤖 DURGA\nModel Building"]
-    B --> C["⚙️ NITIN\nBackend API"]
+    B --> C["⚙️ SHAFI\nBackend API"]
     C --> D["🎨 RIZWAN\nFrontend UI"]
-    D --> E["🚀 SHAFI\nDeployment"]
+    D --> E["🚀 NITIN\nDeployment"]
     E --> F["🧪 MOULI\nTesting & QA"]
     F -.->|"Feedback"| B
 
